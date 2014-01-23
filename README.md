@@ -2,7 +2,7 @@
 
 ![ss](https://raw.github.com/rkmathi/quads/master/ss.jpg)
 
-## これ使って留年しちゃっても責任取れないです
+## ！！注意！！これ使って留年しちゃっても責任取れないです
 
 * 複数の箇所に属すことができる専門選択科目の単位は、次の優先順位で振ってます
 
@@ -38,3 +38,6 @@ ruby-2.0.0, ruby-1.9.3なら動くかも。
   $ ruby quads.rb -c SIKS20XXXXXXX.csv -m 3
 ```
 
+## バージョン履歴
+
+[VERSIONS.md](https://github.com/rkmathi/quads/blob/master/VERSIONS.md)
