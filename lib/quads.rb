@@ -145,7 +145,7 @@ module Quads
       # 主専攻 (2, 3, 4)
       if id =~ /GB#{major}\d+/ || id =~ /GA\d+/ then groups << :EXMY end
       # 他専攻 (2, 3, 4)
-      if id =~ /GB[^[1|#{major}]]\d+/ then groups << :EXOT end
+      if id =~ /GB[^1#{major}]\d+/ then groups << :EXOT end
 
       return groups
     end
