@@ -1,5 +1,7 @@
 # quads
 
+![ss](https://raw.github.com/rkmathi/quads/master/ss.jpg)
+
 ## これ使って留年しちゃっても責任取れないです
 
 * 複数の箇所に属すことができる専門選択科目の単位は、次の優先順位で振ってます
