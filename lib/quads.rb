@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'stringio'
 
 module Quads
   class Quads
@@ -46,13 +47,18 @@ module Quads
     }
 
     def initialize(csv: nil, major: nil)
-      raise Exception if csv.nil? or major.nil?
+      raise ArgumentError, 'Major is required.' if major.nil?
+      if csv
+        src = StringIO.new(IO.read(csv))
+      else
+        src = $stdin
+      end
 
       @genre = {}
       CREDITS.each do |k, v|
         @genre[k] = Genre.new(name: v[:name], need: v[:need], now: v[:now]) 
       end
-      @subjects = select_gb(get_subjects(csv, major))
+      @subjects = select_gb(get_subjects(src, major))
     end
 
     def print
@@ -82,10 +88,12 @@ module Quads
     end
 
     private
-    def get_subjects(csv_path, major)
-      File.open(csv_path) do |f|
-        @data = f.read.gsub(/\r/, "")
-      end
+    def normalize_csv_string(io)
+      io.read.gsub(/\r/, '')
+    end
+
+    def get_subjects(io, major)
+      @data = normalize_csv_string(io)
 
       subjects = Array.new
       source = CSV.parse(@data, headers: true)
