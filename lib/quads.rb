@@ -60,10 +60,8 @@ module Quads
         puts_group(@subjects, group)
       end
 
-      _EBSE_sum = 0.0
-      [:EX10, :EXGB, :EXMY, :EXOT].each do |g|
-        _EBSE_sum += @genre[g].now
-      end
+      _EBSE_sum =
+        %i(EX10 EXGB EXMY EXOT).map{|g| @genre[g].now}.inject(:+)
       ebse_diff = 48.5 - _EBSE_sum
       puts "専門科目選択科目 => #{_EBSE_sum} / 48.5 単位"
       if ebse_diff > 0.0
@@ -71,12 +69,9 @@ module Quads
       else
         puts "専門科目選択科目は、多分足りてます。"
       end
-      puts ""
+      puts
 
-      _ALL_sum = 0.0
-      GROUPS.each do |g|
-        _ALL_sum += @genre[g].now
-      end
+      _ALL_sum = GROUPS.map{|g| @genre[g].now}.inject(:+)
       all_diff = 126.0 - _ALL_sum
       puts "全部 => #{_ALL_sum} / 126.0 単位"
       if all_diff > 0.0
