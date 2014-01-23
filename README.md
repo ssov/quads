@@ -41,3 +41,4 @@ ruby-2.0.0, ruby-1.9.3なら動くかも。
 ## バージョン履歴
 
 [VERSIONS.md](https://github.com/rkmathi/quads/blob/master/VERSIONS.md)
+
