@@ -32,9 +32,9 @@ ruby-2.1.0で動作確認してます。
 ruby-2.0.0, ruby-1.9.3なら動くかも。
 
 動かし方
-  $ ruby quads.rb <TWINSのCSVデータ> <主専攻のGB?>
+  $ ruby quads.rb -c <TWINSのCSVデータ> -m <主専攻のGB?>
 
 例
-  $ ruby quads.rb SIKS20XXXXXXX.csv 3
+  $ ruby quads.rb -c SIKS20XXXXXXX.csv -m 3
 ```
 
