@@ -17,6 +17,10 @@
 
 * TWINS -> 成績 -> 単位修得状況照会 -> ダウンロード -> 「CSV」「Unicode」 -> 出力
 
+> "SIKS20XXXXXXX.csv"を出力
+>
+> "SIRS20XXXXXXX.csv"じゃないお
+
 * ソフトウェアサイエンス主専攻 => 2
 
 * 情報システム主専攻           => 3
@@ -28,6 +32,6 @@
   $ ruby quads.rb <TWINSのCSVデータ> <主専攻のGB?>
 
 例
-  $ ruby quads.rb SIKS20*******.csv 3
+  $ ruby quads.rb SIKS20XXXXXXX.csv 3
 ```
 
