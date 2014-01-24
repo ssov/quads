@@ -50,10 +50,8 @@ module Quads
         puts_group(@subjects, group)
       end
 
-      _EBSE_sum = 0.0
-      [:EX10, :EXGB, :EXMY, :EXOT].each do |g|
-        _EBSE_sum += @genre[g].now
-      end
+      _EBSE_sum =
+        %i(EX10 EXGB EXMY EXOT).map{|g| @genre[g].now}.inject(:+)
       ebse_diff = 48.5 - _EBSE_sum
       puts "専門科目選択科目 => #{_EBSE_sum} / 48.5 単位"
       if ebse_diff > 0.0
@@ -61,12 +59,9 @@ module Quads
       else
         puts "専門科目選択科目は、多分足りてます。"
       end
-      puts ""
+      puts
 
-      _ALL_sum = 0.0
-      @@GROUPS.each do |g|
-        _ALL_sum += @genre[g].now
-      end
+      _ALL_sum = GROUPS.map{|g| @genre[g].now}.inject(:+)
       all_diff = 126.0 - _ALL_sum
       puts "全部 => #{_ALL_sum} / 126.0 単位"
       if all_diff > 0.0
@@ -101,28 +96,28 @@ module Quads
     end
 
     def get_group(id, cls, major)
-      groups = []
-
-      # 専門 必修     => 科目区分が"1A"
-      if cls == "1A"      then groups << :EXRE end
-      # 専門 選択     => 科目区分が"2A"   => 更に細分化
-      if cls == "2A"      then groups += get_exse(id, major) end
-      # 専門基礎 必修 => 科目区分が"1B"
-      if cls == "1B"      then groups << :EBRE end
-      # 専門基礎 選択 => 科目区分が"2B"
-      if cls == "2B"      then groups << :EBSE end
-      # 基礎共通 総I  => 科目区分が"1R"
-      if cls == "1R"      then groups << :BAS1 end
-      # 基礎共通 総II => 科目区分が"1S"
-      if cls == "1S"      then groups << :BAS2 end
-      # 基礎共通 体育 => 科目区分が"1E"
-      if cls == "1E"      then groups << :BAPE end
-      # 基礎共通 英語 => 科目区分が"1F"
-      if cls == "1F"      then groups << :BAEN end
-      # 自由          => 科目区分が"3[A-S]"
-      if cls =~ /3[A-S]/  then groups << :FREE end
-
-      return groups
+      g = 
+        case cls
+        # 専門 必修     => 科目区分が"1A"
+        when "1A"      then :EXRE
+        # 専門 選択     => 科目区分が"2A"   => 更に細分化
+        when "2A"      then get_exse(id, major)
+        # 専門基礎 必修 => 科目区分が"1B"
+        when "1B"      then :EBRE
+        # 専門基礎 選択 => 科目区分が"2B"
+        when "2B"      then :EBSE
+        # 基礎共通 総I  => 科目区分が"1R"
+        when "1R"      then :BAS1
+        # 基礎共通 総II => 科目区分が"1S"
+        when "1S"      then :BAS2
+        # 基礎共通 体育 => 科目区分が"1E"
+        when "1E"      then :BAPE
+        # 基礎共通 英語 => 科目区分が"1F"
+        when "1F"      then :BAEN
+        # 自由          => 科目区分が"3[A-S]"
+        when /3[A-S]/  then :FREE
+        end
+      (g.is_a? Symbol) ? [g] : g
     end
 
     def get_exse(id, major)
