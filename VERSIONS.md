@@ -1,3 +1,8 @@
+### Version 0.0.4
+
+* [CSVファイルだけでなく、標準入力からの入力も可能に](https://github.com/rkmathi/quads/issues/12) (thanks @mayth !!)
+
+
 ### Version 0.0.3
 
 * [科目判定正規表現の修正](https://github.com/rkmathi/quads/issues/7) (thanks @yoshimuraYuu !!)

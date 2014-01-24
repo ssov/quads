@@ -28,14 +28,15 @@
 * 知能情報メディア主専攻       => 4
 
 ```sh
-ruby-2.1.0で動作確認してます。
-ruby-2.0.0, ruby-1.9.3なら動くかも。
+ruby-2.1.0で動作確認してます。ruby-2.0.0, ruby-1.9.3なら動くかも。
 
 動かし方
   $ ruby quads.rb -c <TWINSのCSVデータ> -m <主専攻のGB?>
 
 例
   $ ruby quads.rb -c SIKS20XXXXXXX.csv -m 3
+または
+  $ cat ./SIKS20XXXXXXX.csv | ruby quads.rb -m 3
 ```
 
 ## バージョン履歴
