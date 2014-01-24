@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'json'
 
 module Quads
   class Quads
     class Genre
-      attr_accessor :group, :name, :need, :now
+      attr_accessor :group, :name, :min, :max, :now
+
       def initialize(**args)
         args.each do |k, v|
           self.instance_variable_set("@#{k}".to_sym, v)
@@ -13,7 +15,7 @@ module Quads
       end
 
       def lack
-        @need - @now
+        @min - @now
       end
 
       def lack?
@@ -21,42 +23,30 @@ module Quads
       end
     end
 
-    EX10s = [
-      "GB20101", "GB20201", "GB20301",
-      "GB30101", "GB30201", "GB30301", "GB30401",
-      "GB40201", "GB40301", "GB42101"
-    ]
-
-    GROUPS = [:EXRE, :EX10, :EXGB, :EXMY, :EXOT, :EBRE, 
-              :EBSE, :BAS1, :BAS2, :BAPE, :BAEN, :FREE]
-
-    CREDITS = {
-      EXRE: {name: "専門科目 必修科目",        need: 31.5, now: 0.0},
-      EX10: {name: "専門科目 選択科目 上10",   need: 10.0, now: 0.0},
-      EXGB: {name: "専門科目 選択科目 GB1",    need: 14.0, now: 0.0},
-      EXMY: {name: "専門科目 選択科目 自専攻", need: 14.0, now: 0.0},
-      EXOT: {name: "専門科目 選択科目 他専攻", need:  6.5, now: 0.0},
-      EBRE: {name: "専門基礎 必修科目",        need: 16.0, now: 0.0},
-      EBSE: {name: "専門基礎 選択科目",        need:  8.0, now: 0.0},
-      BAS1: {name: "基礎科目 必修科目 総合I",  need:  2.0, now: 0.0},
-      BAS2: {name: "基礎科目 必修科目 総合II", need:  6.0, now: 0.0},
-      BAPE: {name: "基礎科目 必修科目 体育",   need:  3.0, now: 0.0},
-      BAEN: {name: "基礎科目 必修科目 英語",   need:  4.5, now: 0.0},
-      FREE: {name: "自由科目",                 need:  6.5, now: 0.0}
-    }
-
     def initialize(csv: nil, major: nil)
       raise Exception if csv.nil? or major.nil?
 
+      rule_coins = open('./lib/rules/coins.json')
+      json_coins = JSON.load(rule_coins.read)
+      rule_coins.close
+
+      @@CREDITS= json_coins["credits"].map { |j|
+        {j.keys.first.to_sym => j[j.keys.first]}
+      }
+      @@EX10s  = json_coins["ex10s"].map   { |j| j }
+      @@GROUPS = json_coins["credits"].map { |j| j.keys.first.to_sym }
+
       @genre = {}
-      CREDITS.each do |k, v|
-        @genre[k] = Genre.new(name: v[:name], need: v[:need], now: v[:now]) 
+      @@CREDITS.each do |key|
+        key.each do |k,v|
+          @genre[k] = Genre.new(name: v["name"], min: v["min"], max: v["max"],now: 0.0)
+        end
       end
       @subjects = select_gb(get_subjects(csv, major))
     end
 
     def print
-      GROUPS.each do |group|
+      @@GROUPS.each do |group|
         puts_group(@subjects, group)
       end
 
@@ -74,7 +64,7 @@ module Quads
       puts ""
 
       _ALL_sum = 0.0
-      GROUPS.each do |g|
+      @@GROUPS.each do |g|
         _ALL_sum += @genre[g].now
       end
       all_diff = 126.0 - _ALL_sum
@@ -139,7 +129,7 @@ module Quads
       groups = []
 
       # いわゆる"上10"な科目
-      if EX10s.include?(id) then groups << :EX10 end
+      if @@EX10s.include?(id) then groups << :EX10 end
       # GB1シリーズ
       if id =~ /GB1\d+/     then groups << :EXGB end
       # 主専攻 (2, 3, 4)
@@ -196,7 +186,7 @@ module Quads
         end
       end
 
-      puts "計 #{genre.now} / #{genre.need} 単位"
+      puts "計 #{genre.now} / #{genre.min} 単位"
       if genre.lack?
         puts "あと#{genre.lack}単位くらい足りないです。"
       else
@@ -206,3 +196,4 @@ module Quads
     end
   end
 end
+
