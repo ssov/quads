@@ -2,6 +2,7 @@
 
 require 'csv'
 require 'json'
+require 'stringio'
 
 module Quads
   class Quads
@@ -24,7 +25,12 @@ module Quads
     end
 
     def initialize(csv: nil, major: nil)
-      raise Exception if csv.nil? or major.nil?
+      raise ArgumentError, 'Major is required.' if major.nil?
+      if csv
+        src = StringIO.new(IO.read(csv))
+      else
+        src = $stdin
+      end
 
       rule_coins = open('./lib/rules/coins.json')
       json_coins = JSON.load(rule_coins.read)
@@ -42,7 +48,7 @@ module Quads
           @genre[k] = Genre.new(name: v["name"], min: v["min"], max: v["max"],now: 0.0)
         end
       end
-      @subjects = select_gb(get_subjects(csv, major))
+      @subjects = select_gb(get_subjects(src, major))
     end
 
     def print
@@ -72,10 +78,12 @@ module Quads
     end
 
     private
-    def get_subjects(csv_path, major)
-      File.open(csv_path) do |f|
-        @data = f.read.gsub(/\r/, "")
-      end
+    def normalize_csv_string(io)
+      io.read.gsub(/\r/, '')
+    end
+
+    def get_subjects(io, major)
+      @data = normalize_csv_string(io)
 
       subjects = Array.new
       source = CSV.parse(@data, headers: true)
