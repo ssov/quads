@@ -67,7 +67,7 @@ module Quads
       end
       puts
 
-      _ALL_sum = GROUPS.map{|g| @genre[g].now}.inject(:+)
+      _ALL_sum = @@GROUPS.map{|g| @genre[g].now}.inject(:+)
       all_diff = 126.0 - _ALL_sum
       puts "全部 => #{_ALL_sum} / 126.0 単位"
       if all_diff > 0.0
