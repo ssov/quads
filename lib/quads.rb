@@ -3,8 +3,70 @@
 require 'csv'
 require 'json'
 require 'stringio'
+require 'io/console'
+require 'mechanize'
+require 'digest/sha1'
 
 module Quads
+  class Twins
+    LOGIN_URL="https://twins.tsukuba.ac.jp/campusweb/"
+    class << self
+      def get_csv
+        print "Your ID: "
+        id = STDIN.gets.chomp
+        print "Your Password: "
+        password = STDIN.noecho(&:gets).chomp
+        puts "\nLogin..."
+        data = {
+          userName: id,
+          password: password
+        }
+
+        begin
+          @@agent = Mechanize.new
+          page = @@agent.get(LOGIN_URL)
+          login = page.form_with(name: "form") do |form|
+            form.field_with(name: "userName").value = id
+            form.field_with(name: "password").value = password
+          end.submit
+
+          left_menu = login.frame_with(name: "menu").click
+          puts "Get your data..."
+          
+          # open menu
+          left_menu = left_menu.form_with(name: "MenuForm") do |form|
+            form.subsysid = "F360"
+            form.action = "/campusweb/campussquare.do#F360"
+          end.submit
+          
+          # class list
+          class_page = left_menu.form_with(name: "linkForm") do |form|
+            form._flowId = "SIW0001300-flow"
+          end.submit
+
+          # download page
+          download_page = class_page.form_with(name: "InputForm") do |form|
+            form._eventId = "output"
+          end.submit
+
+          # download csv file
+          csv = download_page.form_with(name: "OutputForm") do |form| 
+            form._eventId = "output"
+          end.submit
+          
+          filename = "/tmp/#{Digest::SHA1.hexdigest(Time.now.to_f.to_s)}"
+          File.open(filename, "w") do |f|
+            f.puts csv.body.toutf8
+          end
+          filename
+        rescue
+          puts "ログインに失敗したか、スクレイピングに失敗"
+          exit
+        end
+      end
+    end
+  end
+
   class Quads
     class Genre
       attr_accessor :group, :name, :min, :max, :now

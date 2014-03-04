@@ -7,6 +7,7 @@ include Quads
 
 OptionParser.new do |opt|
   opt.on('-c CSV') {|v| @csv = v }
+  opt.on('--login') {|v| @csv = Twins.get_csv }
   opt.on('-m Major') {|v| @major = v }
   opt.parse!(ARGV)
 end
