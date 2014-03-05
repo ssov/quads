@@ -38,7 +38,7 @@ ruby-2.1.0で動作確認してます。ruby-2.0.0, ruby-1.9.3なら動くかも
 または
   $ cat ./SIKS20XXXXXXX.csv | ruby quads.rb -m 3
 または
-  $ ruby quads.rb -m 3 --login
+  $ ruby quads.rb --login
 ```
 
 ## バージョン履歴
