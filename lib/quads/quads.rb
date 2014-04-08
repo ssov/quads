@@ -13,6 +13,14 @@ module Quads
         end
       end
 
+      def lack_max
+        @max - @now
+      end
+
+      def lack_max?
+        lack_max > 0
+      end
+
       def lack
         @min - @now
       end
@@ -54,8 +62,14 @@ module Quads
         puts_group(@subjects, group)
       end
 
-      _EBSE_sum =
-        %i(EX10 EXGB EXMY EXOT).map{|g| @genre[g].now}.inject(:+)
+      _EBSE_sum = %i(EX10 EXGB EXMY EXOT).inject(0){|i, g|
+          i += if @genre[g].max < @genre[g].now
+            @genre[g].max
+          else
+            @genre[g].now
+          end
+        }
+
       ebse_diff = 48.5 - _EBSE_sum
       puts "専門科目選択科目 => #{_EBSE_sum} / 48.5 単位"
       if ebse_diff > 0.0
@@ -102,7 +116,7 @@ module Quads
     end
 
     def get_group(id, cls, major)
-      g = 
+      g =
         case cls
         # 専門 必修     => 科目区分が"1A"
         when "1A"      then :EXRE
@@ -142,6 +156,7 @@ module Quads
     end
 
     def select_gb(subjects)
+      already = []
       subjects.each do |s|
         if s[:group].length == 1
           g = s[:group].first
@@ -152,25 +167,63 @@ module Quads
       end
 
       ### :EXMY
-      subjects.select { |s| [:EX10,:EXMY,:EXOT].include?(s[:group].first) }.each do |s|
-        if s[:group].include?(:EXMY) && @genre[:EXMY].lack?
+      subjects.select { |s| s[:group].include?(:EXMY) }
+      .sort{|a, b| a[:group].size <=> b[:group].size }
+      .each do |s|
+        if @genre[:EXMY].lack?
           s[:group] = [:EXMY]
           @genre[:EXMY].now += s[:units]
+          already << s
         end
       end
 
       ### :EX10
-      subjects.select { |s| s[:group].include?(:EX10) }.each do |s|
+      subjects.select { |s| s[:group].include?(:EX10) }
+      .sort{|a, b| a[:group].size <=> b[:group].size }
+      .each do |s|
         if @genre[:EX10].lack?
           s[:group] = [:EX10]
           @genre[:EX10].now += s[:units]
+          already << s
         end
       end
 
       ### :EXOT
-      subjects.select { |s| s[:group].include?(:EXOT) }.each do |s|
+      subjects.select { |s| s[:group].include?(:EXOT) }
+      .sort{|a, b| a[:group].size <=> b[:group].size }
+      .each do |s|
+        if @genre[:EXOT].lack?
+          s[:group] = [:EXOT]
+          @genre[:EXOT].now += s[:units]
+          already << s
+        end
+      end
+
+      ### MAX
+
+      ### :EXMY
+      (subjects-already).select { |s| s[:group].include?(:EXMY) }.each do |s|
+        if @genre[:EXMY].lack_max?
+          s[:group] = [:EXMY]
+          @genre[:EXMY].now += s[:units]
+          already << s
+        end
+      end
+
+      ### :EX10
+      (subjects-already).select { |s| s[:group].include?(:EX10) }.each do |s|
+        if @genre[:EX10].lack_max?
+          s[:group] = [:EX10]
+          @genre[:EX10].now += s[:units]
+          already << s
+        end
+      end
+
+      ### :EXOT
+      (subjects-already).select { |s| s[:group].include?(:EXOT) }.each do |s|
         s[:group] = [:EXOT]
         @genre[:EXOT].now += s[:units]
+        already << s
       end
 
       return subjects
@@ -192,6 +245,10 @@ module Quads
         puts "あと#{genre.lack}単位くらい足りないです。"
       else
         puts "たぶんおｋ"
+      end
+
+      if genre.max < genre.now
+        puts "なお、#{genre.now - genre.max}単位は無駄になります。"
       end
       puts ""
     end
